@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Motores de videojuegos · Evolución</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="volume" aria-label="Libro interactivo sobre motores de videojuegos">
+    <div class="book" id="book">
+      <div class="reading-area">
+        <div class="spread" id="cover-spread">
+          <header class="page cover" id="portada" tabindex="-1">
+            <p class="eyebrow">HISTORIA DEL DESARROLLO DE VIDEOJUEGOS</p>
+            <h1>MOTORES <small>DE VIDEOJUEGOS</small></h1>
+
+            <div class="ribbon">
+              EVOLUCIÓN <span aria-hidden="true">↗</span>
+            </div>
+
+            <p class="intro">
+              De los primeros mundos poligonales a la iluminación en tiempo real.
+              Recorre los hitos y descubre cómo cambiaron las herramientas con las
+              que se crean los videojuegos.
+            </p>
+
+            <div class="stats">
+              <span><b>10</b> hitos</span>
+              <b>1987–2020s</b>
+            </div>
+          </header>
+
+          <section class="page index" id="indice" tabindex="-1" aria-labelledby="index-title">
+            <p class="eyebrow">MAPA DEL RECORRIDO</p>
+            <h2 id="index-title">ÍNDICE</h2>
+            <nav id="timeline" aria-label="Saltar a un motor"></nav>
+
+            <noscript>
+              <p>Activa JavaScript para ver las fichas y pasar las páginas.</p>
+            </noscript>
+          </section>
+        </div>
+      </div>
+
+      <button
+        class="corner corner--previous"
+        id="previous"
+        type="button"
+        aria-label="Página anterior"
+        title="Página anterior"
+        hidden
+      ><span aria-hidden="true">←</span></button>
+
+      <button
+        class="corner corner--next"
+        id="next"
+        type="button"
+        aria-label="Página siguiente"
+        title="Página siguiente"
+        hidden
+      ><span aria-hidden="true">→</span></button>
+    </div>
+  </main>
+
+  <div class="ghost" aria-hidden="true">
+    <div class="ghost-body"></div>
+    <div class="ghost-eyes"><i></i><i></i></div>
+  </div>
+
+  <dialog id="details" aria-labelledby="detail-title">
+    <div class="dialog-header">
+      <span id="detail-meta"></span>
+      <form method="dialog">
+        <button class="close-x" aria-label="Cerrar información" autofocus>×</button>
+      </form>
+    </div>
+
+    <div class="dialog-body">
+      <h2 id="detail-title"></h2>
+      <p id="detail-text"></p>
+      <aside id="detail-key"></aside>
+      <form method="dialog">
+        <button class="close-modal">Seguir el recorrido</button>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    const motores = [
+      {
+        id: "freescape",
+        nombre: "FREESCAPE",
+        fecha: "1987",
+        etapa: "LOS PRIMEROS MUNDOS",
+        tema: "paper",
+        subtitulo: "Primero la forma, después el detalle.",
+        resumen: "Con poca memoria y capacidad de cálculo, permitió explorar espacios tridimensionales construidos con polígonos de colores planos.",
+        etiquetas: ["Polígonos", "Renderizado por CPU"],
+        detalle: "El procesador calculaba la escena sin la ayuda de las tarjetas gráficas modernas. Los mundos se construían con formas sencillas, como bloques y rampas, que podían observarse desde diferentes posiciones.",
+        clave: "El avance estaba en recorrer un espacio tridimensional, aunque su apariencia todavía fuera muy simple.",
+        logo: "logo-freescape.png",
+        imagen: "captura-freescape.jpg"
+      },
+      {
+        id: "wolfenstein",
+        nombre: "WOLFENSTEIN 3D",
+        fecha: "1992",
+        etapa: "LA ILUSIÓN DE PROFUNDIDAD",
+        tema: "blue",
+        subtitulo: "Rayos que construyen pasillos.",
+        resumen: "El ray casting calculaba la distancia hasta las paredes para dibujar su tamaño en pantalla y producir una sensación de profundidad.",
+        etiquetas: ["Ray casting", "Texturas", "Sprites"],
+        detalle: "Las paredes se proyectaban desde un mapa organizado en cuadrícula. Los personajes y muchos objetos eran imágenes planas o sprites. Esta combinación permitía mostrar escenarios con perspectiva a gran velocidad.",
+        clave: "Las paredes compartían altura y no existían pisos superpuestos.",
+        logo: "Wolfestein-logo.png",
+        imagen: "Wolfestein-juego.jpg"
+      },
+      {
+        id: "doom",
+        nombre: "DOOM ENGINE",
+        fecha: "1993",
+        etapa: "TEXTURAS Y SECTORES",
+        tema: "ink",
+        subtitulo: "Escaleras, alturas y sombras.",
+        resumen: "Los sectores permitieron variar las alturas del suelo y del techo, además de la iluminación, para crear espacios más complejos.",
+        etiquetas: ["2.5D", "Sectores", "Recursos WAD"],
+        detalle: "Cada sector podía tener propiedades distintas. Eso permitió construir escaleras, ascensores y zonas oscuras. La separación de recursos en archivos WAD facilitó que la comunidad creara mapas y modificaciones.",
+        clave: "Su arquitectura original no permitía superponer habitaciones como en un motor 3D completo.",
+        logo: "Doom-Logo-1993.png",
+        imagen: "Doom-juego.jpg"
+      },
+      {
+        id: "quake",
+        nombre: "QUAKE ENGINE",
+        fecha: "1996",
+        etapa: "EL SALTO POLIGONAL",
+        tema: "lavender",
+        subtitulo: "Personajes y escenarios en 3D.",
+        resumen: "Los modelos poligonales ampliaron la libertad de movimiento y permitieron observar los entornos desde diferentes ángulos.",
+        etiquetas: ["Modelos 3D", "Perspectiva", "OpenGL"],
+        detalle: "El motor apareció inicialmente con renderizado por software. Posteriormente, GLQuake aprovechó OpenGL y las tarjetas aceleradoras para trasladar parte del trabajo gráfico al hardware especializado.",
+        clave: "Durante esta transición convivieron el renderizado por software y la aceleración gráfica.",
+        logo: "Quake-Logo.png",
+        imagen: "Quake-juego.jpg"
+      },
+      {
+        id: "unreal",
+        nombre: "UNREAL ENGINE",
+        fecha: "1998",
+        etapa: "EL MOTOR COMO HERRAMIENTA",
+        tema: "peach",
+        subtitulo: "Construir mundos desde un editor.",
+        resumen: "Las herramientas de edición permitieron organizar escenarios, luces y efectos dentro de un entorno de creación reutilizable.",
+        etiquetas: ["Unreal Engine 1", "Editor", "Iluminación"],
+        detalle: "El editor UnrealEd acercó la construcción de niveles a diseñadores y creadores de contenido. La licencia del motor permitió que otros estudios utilizaran esa tecnología como base para sus proyectos.",
+        clave: "Esta etapa corresponde a la primera generación, Unreal Engine 1.",
+        logo: "Unreal_Engine_2004.webp",
+        imagen: "UE1_juego.jpg"
+      },
+      {
+        id: "source",
+        nombre: "SOURCE",
+        fecha: "2004",
+        etapa: "FÍSICAS Y EXPRESIÓN",
+        tema: "paper",
+        subtitulo: "El entorno responde a tus acciones.",
+        resumen: "La combinación de físicas, animación facial y materiales permitió integrar los objetos y personajes de forma más convincente en la experiencia.",
+        etiquetas: ["Físicas", "Shaders", "Animación"],
+        detalle: "Los objetos podían interactuar mediante peso, fuerzas y colisiones. Los shaders definían cómo se mostraban las superficies bajo la luz, mientras que la animación facial reforzaba la expresión de los personajes.",
+        clave: "Un motor de juego reúne gráficos, física, sonido, animación, lógica y herramientas de desarrollo.",
+        logo: "Sorcelogo.png",
+        imagen: "source-juego.jpg"
+      },
+      {
+        id: "unity",
+        nombre: "UNITY",
+        fecha: "2005",
+        etapa: "CREACIÓN MULTIPLATAFORMA",
+        tema: "ink",
+        subtitulo: "Más creadores, más estilos.",
+        resumen: "Un entorno de desarrollo para proyectos 2D y 3D que combina edición visual, componentes y programación en C#.",
+        etiquetas: ["2D / 3D", "C#", "Componentes"],
+        detalle: "Su organización mediante objetos y componentes permite combinar comportamientos, gráficos, audio y física. Las herramientas de exportación facilitan adaptar los proyectos a distintas plataformas.",
+        clave: "La evolución de los motores también consiste en ampliar el acceso a la creación y permitir estilos visuales diferentes.",
+        logo: "Unity-Logo-2004.png",
+        imagen: "unity-jueg.jpg"
+      },
+      {
+        id: "cryengine",
+        nombre: "CRYENGINE 2",
+        fecha: "2007",
+        etapa: "LA GENERACIÓN HD",
+        tema: "blue",
+        subtitulo: "Naturaleza, luz y escala.",
+        resumen: "La vegetación, las sombras y los materiales detallados impulsaron la creación de entornos naturales de gran riqueza visual.",
+        etiquetas: ["HDR", "Sombras", "Entornos naturales"],
+        detalle: "La búsqueda de escenas más realistas combinó iluminación, efectos atmosféricos y mayor complejidad visual. Estos avances también elevaron las exigencias de procesamiento y memoria.",
+        clave: "El año corresponde a CRYENGINE 2.",
+        logo: "CryEngine_Logo.svg",
+        imagen: "CryEngine_juego.jpg"
+      },
+      {
+        id: "godot",
+        nombre: "GODOT",
+        fecha: "2014",
+        etapa: "DESARROLLO ABIERTO",
+        tema: "lavender",
+        subtitulo: "Construir desde escenas y nodos.",
+        resumen: "Su apertura pública impulsó un motor de código abierto para proyectos 2D y 3D, organizado mediante escenas reutilizables.",
+        etiquetas: ["Escenas", "Nodos", "Licencia MIT"],
+        detalle: "Los nodos aportan funciones concretas, como gráficos, sonido o física. Al combinarlos en escenas, se pueden construir elementos reutilizables y organizar proyectos de distintas escalas.",
+        clave: "El acceso al código permite estudiar, modificar y adaptar el motor.",
+        logo: "Godot_icon.svg.webp",
+        imagen: "GOdot game.jpg"
+      },
+      {
+        id: "unreal5",
+        nombre: "UNREAL ENGINE 5",
+        fecha: "2020s",
+        etapa: "EL RENDERIZADO CONTEMPORÁNEO",
+        tema: "peach",
+        subtitulo: "Más detalle, luz más creíble.",
+        resumen: "La geometría detallada, la iluminación global y los materiales físicamente basados amplían las posibilidades de creación en tiempo real.",
+        etiquetas: ["Nanite", "Lumen", "Materiales PBR"],
+        detalle: "Nanite permite trabajar con geometría muy detallada y Lumen ofrece iluminación global y reflejos dinámicos. La configuración del proyecto debe equilibrar calidad visual y rendimiento según el hardware.",
+        clave: "La dirección artística sigue definiendo cómo se ve cada experiencia.",
+        logo: "Unreal_Engine-Logo.wine.png",
+        imagen: "unreal_juego.png"
+      }
+    ];
+
+    const diagramas = [
+      "M35 70 78 43 119 66 76 94Z M35 70v38l41 24 43-28V66 M76 94v38 M128 107l37-60 38 60-37 22Z M165 47l1 82",
+      "M18 21 91 61h55l76-40 M18 135l73-40h55l76 40 M91 61v34m55-34v34 M18 21v114m204-114v114 M44 35v86m149-86v86 M68 49v59m102-59v59",
+      "M24 115l47-27 31 17 51-30 60 34-48 28-42-24-48 28z M71 88V65l51-29 61 33-30 18m-31-51v24 M71 65l32 18 50-30 M153 75v12",
+      "M43 98 119 31l77 67-77 33Z M43 98l76-10 77 10 M119 31v100 M80 65l39 23 39-23 M80 114l39-26 39 26",
+      "M120 75 29 45m91 30 91-30m-91 30-70 51m70-51 70 51 M101 57h38v36h-38z M16 33h26v24H16zm182 0h26v24h-26z M37 114h26v24H37zm140 0h26v24h-26z"
+    ];
+
+    const porId = id => document.getElementById(id);
+    const raiz = document.documentElement;
+    const libro = porId("book");
+    const lectura = libro.querySelector(".reading-area");
+    const anterior = porId("previous");
+    const siguiente = porId("next");
+    const dialogo = porId("details");
+    const fantasma = document.querySelector(".ghost");
+    const movil = matchMedia("(max-width: 700px)");
+    const movimientoReducido = matchMedia("(prefers-reduced-motion: reduce)");
+    const pliegos = [porId("cover-spread")];
+
+    let paginaActual = 0;
+    let giroActivo;
+    let posicionAnterior = null;
+
+    function ocultarCursorFantasma() {
+      raiz.classList.remove("cursor-fantasma-activo");
+      posicionAnterior = null;
+    }
+
+    function ponerImagen(destino, archivo, descripcion, clase, alCargar) {
+      if (!archivo) return;
+
+      const imagen = document.createElement("img");
+      imagen.alt = descripcion;
+      imagen.className = clase;
+      imagen.loading = "lazy";
+
+      imagen.addEventListener("error", () => imagen.remove(), { once: true });
+
+      if (alCargar) {
+        imagen.addEventListener("load", alCargar, { once: true });
+      }
+
+      imagen.src = "imagenes/" + archivo;
+      destino.append(imagen);
+    }
+
+    function abrirDetalles(motor) {
+      ocultarCursorFantasma();
+      porId("detail-meta").textContent = `${motor.fecha} / ${motor.etapa}`;
+      porId("detail-title").textContent = motor.nombre;
+      porId("detail-text").textContent = motor.detalle;
+      porId("detail-key").textContent = motor.clave;
+      dialogo.showModal();
+    }
+
+    motores.forEach((motor, posicion) => {
+      const enlace = document.createElement("a");
+      enlace.href = "#" + motor.id;
+      enlace.innerHTML = `
+        <b>${motor.fecha}</b>
+        <span>${motor.nombre}</span>
+        <i aria-hidden="true">↗</i>
+      `;
+      porId("timeline").append(enlace);
+
+      if (posicion % 2 === 0) {
+        const pliego = document.createElement("div");
+        pliego.className = "spread";
+        pliego.hidden = true;
+        lectura.append(pliego);
+        pliegos.push(pliego);
+      }
+
+      const hoja = document.createElement("section");
+      hoja.className = `page engine theme-${motor.tema}`;
+      hoja.id = motor.id;
+      hoja.tabIndex = -1;
+      hoja.setAttribute("aria-labelledby", `titulo-${motor.id}`);
+
+      hoja.innerHTML = `
+        <div class="engine-meta">
+          <span>${motor.etapa}</span>
+          <b>${motor.fecha}</b>
+        </div>
+        <div class="identity" aria-hidden="true"><span>↗</span></div>
+        <h2 id="titulo-${motor.id}">${motor.nombre}</h2>
+        <h3>${motor.subtitulo}</h3>
+        <p>${motor.resumen}</p>
+        <div class="tags">
+          ${motor.etiquetas.map(etiqueta => `<span>${etiqueta}</span>`).join("")}
+        </div>
+        <figure>
+          <div class="media">
+            <svg viewBox="0 0 240 152" aria-hidden="true" focusable="false">
+              <path d="${diagramas[posicion % diagramas.length]}"
+                fill="#3049df" fill-opacity=".3" stroke="#ffcab6"
+                stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <figcaption>ILUSTRACIÓN DECORATIVA</figcaption>
+        </figure>
+        <button class="more" type="button">
+          Saber más <span aria-hidden="true">↗</span>
+        </button>
+      `;
+
+      ponerImagen(hoja.querySelector(".identity"), motor.logo, "", "logo");
+
+      ponerImagen(
+        hoja.querySelector(".media"),
+        motor.imagen,
+        `Captura de ${motor.nombre}`,
+        "capture",
+        () => {
+          hoja.querySelector("figcaption").textContent = `EJEMPLO VISUAL / ${motor.nombre}`;
+        }
+      );
+
+      hoja.querySelector(".more").addEventListener("click", () => abrirDetalles(motor));
+      pliegos.at(-1).append(hoja);
+    });
+
+    function copiarHoja(hoja) {
+      const copia = hoja.cloneNode(true);
+      copia.removeAttribute("id");
+      copia.querySelectorAll("[id]").forEach(elemento => elemento.removeAttribute("id"));
+      return copia;
+    }
+
+    function girarHoja(salida, entrada, avanza) {
+      const ladoSalida = avanza ? "lastElementChild" : "firstElementChild";
+      const ladoEntrada = avanza ? "firstElementChild" : "lastElementChild";
+
+      const base = document.createElement("div");
+      base.className = `turn-base ${avanza ? "turn-base--left" : "turn-base--right"}`;
+      base.inert = true;
+      base.setAttribute("aria-hidden", "true");
+      base.append(copiarHoja(salida[ladoEntrada]));
+
+      const hoja = document.createElement("div");
+      hoja.className = `turn-sheet ${avanza ? "turn-sheet--forward" : "turn-sheet--back"}`;
+      hoja.inert = true;
+      hoja.setAttribute("aria-hidden", "true");
+
+      const frente = copiarHoja(salida[ladoSalida]);
+      frente.classList.add("turn-face");
+
+      const reverso = copiarHoja(entrada[ladoEntrada]);
+      reverso.classList.add("turn-face", "turn-face--back");
+
+      hoja.append(frente, reverso);
+      lectura.append(base, hoja);
+
+      base.firstElementChild.scrollTop = salida[ladoEntrada].scrollTop;
+      frente.scrollTop = salida[ladoSalida].scrollTop;
+      reverso.scrollTop = entrada[ladoEntrada].scrollTop;
+
+      const giro = hoja.animate(
+        [
+          { transform: "rotateY(0deg)" },
+          { transform: `rotateY(${avanza ? -180 : 180}deg)` }
+        ],
+        { duration: 640, easing: "cubic-bezier(.4,.05,.25,1)", fill: "both" }
+      );
+
+      const limpiar = () => {
+        hoja.remove();
+        base.remove();
+      };
+
+      giro.finished.then(limpiar, limpiar);
+      return giro;
+    }
+
+    function mostrarPliego(numero, animar) {
+      if (numero === paginaActual) return;
+
+      giroActivo?.cancel();
+
+      const salida = pliegos[paginaActual];
+      const entrada = pliegos[numero];
+      const avanza = numero > paginaActual;
+
+      paginaActual = numero;
+      entrada.hidden = false;
+      entrada.scrollTop = 0;
+
+      anterior.hidden = numero === 0;
+      siguiente.hidden = numero === pliegos.length - 1;
+
+      if (animar && !movimientoReducido.matches) {
+        if (movil.matches) {
+          giroActivo = entrada.animate(
+            [
+              { transform: `translateX(${avanza ? "14%" : "-14%"})`, opacity: 0.5 },
+              { transform: "translateX(0)", opacity: 1 }
+            ],
+            { duration: 320, easing: "ease-out" }
+          );
+        } else {
+          giroActivo = girarHoja(salida, entrada, avanza);
+        }
+      }
+
+      salida.hidden = true;
+    }
+
+    function leerDestino(animar) {
+      const destino = location.hash.slice(1);
+      const posicion = motores.findIndex(motor => motor.id === destino);
+      const numero = posicion < 0 ? 0 : Math.floor(posicion / 2) + 1;
+
+      mostrarPliego(numero, animar);
+
+      if (!destino && !animar) return;
+
+      const hoja = posicion >= 0
+        ? porId(motores[posicion].id)
+        : porId(destino === "indice" ? "indice" : "portada");
+
+      hoja.focus({ preventScroll: true });
+
+      if (movil.matches) {
+        const pliego = pliegos[numero];
+        pliego.scrollTop += hoja.getBoundingClientRect().top
+          - pliego.getBoundingClientRect().top;
+      }
+    }
+
+    function navegar(numero) {
+      if (numero < 0 || numero >= pliegos.length) return;
+      location.hash = numero === 0 ? "portada" : motores[(numero - 1) * 2].id;
+    }
+
+    anterior.addEventListener("click", () => navegar(paginaActual - 1));
+    siguiente.addEventListener("click", () => navegar(paginaActual + 1));
+    window.addEventListener("hashchange", () => leerDestino(true));
+
+    movil.addEventListener("change", () => {
+      giroActivo?.cancel();
+      leerDestino(false);
+    });
+
+    movimientoReducido.addEventListener("change", () => {
+      if (movimientoReducido.matches) giroActivo?.cancel();
+    });
+
+    siguiente.hidden = false;
+    leerDestino(false);
+
+    // El centro del fantasma coincide con el punto real de clic.
+    window.addEventListener("pointermove", evento => {
+      if (evento.pointerType !== "mouse" || dialogo.open) {
+        ocultarCursorFantasma();
+        return;
+      }
+
+      const x = evento.clientX;
+      const y = evento.clientY;
+
+      fantasma.style.setProperty("--ghost-x", `${x}px`);
+      fantasma.style.setProperty("--ghost-y", `${y}px`);
+
+      if (posicionAnterior) {
+        const dx = x - posicionAnterior.x;
+        const dy = y - posicionAnterior.y;
+        const distancia = Math.hypot(dx, dy);
+
+        if (distancia > 0) {
+          fantasma.style.setProperty("--look-x", `${2 * dx / distancia}px`);
+          fantasma.style.setProperty("--look-y", `${2 * dy / distancia}px`);
+        }
+      } else {
+        fantasma.style.setProperty("--look-x", "0px");
+        fantasma.style.setProperty("--look-y", "0px");
+      }
+
+      posicionAnterior = { x, y };
+      raiz.classList.add("cursor-fantasma-activo");
+    }, { passive: true });
+
+    raiz.addEventListener("pointerleave", ocultarCursorFantasma);
+    window.addEventListener("blur", ocultarCursorFantasma);
+    window.addEventListener("keydown", ocultarCursorFantasma);
+
+    window.addEventListener("pointerdown", evento => {
+      if (evento.pointerType !== "mouse") ocultarCursorFantasma();
+    }, { passive: true });
+  </script>
+</body>
+</html>
